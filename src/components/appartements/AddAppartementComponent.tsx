@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Appartement from "@/models/Appartement";
 import AppartementForm from "./AppartementForm";
+import Batiment from "@/models/Batiment";
 
 export default function AddAppartementComponent() {
   const [appartement, setAppartement] = useState<Appartement>({
@@ -11,30 +12,54 @@ export default function AddAppartementComponent() {
     surface: 0,
     nb_pieces: 0,
     description: "",
+    batiment: { id: 0 }
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const [batiments, setBatiments] = useState<Batiment[]>([]);
+
+  useEffect(() => {
+    fetch("http://localhost:9008/api/batiments")
+      .then((res) => res.json())
+      .then((data) => setBatiments(data));
+  }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setAppartement((prev) => ({
-      ...prev,
-      [name]: ["numero", "surface", "nb_pieces"].includes(name) ? Number(value) : value,
-    }));
+
+    if (name === "batimentId") {
+      setAppartement((prev) => ({
+        ...prev,
+        batiment: { id: Number(value) }
+      }));
+    } else {
+      setAppartement((prev) => ({
+        ...prev,
+        [name]: ["numero", "surface", "nb_pieces"].includes(name) ? Number(value) : value
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     await fetch("http://localhost:9008/api/appartements", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(appartement),
     });
+
     window.location.reload();
   };
 
   return (
     <div>
       <h3>Ajouter un appartement</h3>
-      <AppartementForm appartement={appartement} onChange={handleChange} onSubmit={handleSubmit} />
+      <AppartementForm
+        appartement={appartement}
+        batiments={batiments}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+      />
     </div>
   );
 }

@@ -1,14 +1,16 @@
 "use client";
 
 import Appartement from "@/models/Appartement";
+import Batiment from "@/models/Batiment";
 
 type Props = {
   appartement: Appartement;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  batiments: Batiment[];
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   onSubmit?: (e: React.FormEvent) => void;
 };
 
-export default function AppartementForm({ appartement, onChange, onSubmit }: Props) {
+export default function AppartementForm({ appartement, batiments, onChange, onSubmit }: Props) {
   return (
     <form
       onSubmit={onSubmit || ((e) => e.preventDefault())}
@@ -20,7 +22,7 @@ export default function AppartementForm({ appartement, onChange, onSubmit }: Pro
         placeholder="Numéro"
         value={appartement.numero}
         onChange={onChange}
-        className="w-full border px-3 py-2 rounded"
+        className="w-full border px-3 py-2 rounded text-black"
       />
       <input
         name="surface"
@@ -28,7 +30,7 @@ export default function AppartementForm({ appartement, onChange, onSubmit }: Pro
         placeholder="Surface (m²)"
         value={appartement.surface}
         onChange={onChange}
-        className="w-full border px-3 py-2 rounded"
+        className="w-full border px-3 py-2 rounded text-black"
       />
       <input
         name="nb_pieces"
@@ -36,15 +38,30 @@ export default function AppartementForm({ appartement, onChange, onSubmit }: Pro
         placeholder="Nombre de pièces"
         value={appartement.nb_pieces}
         onChange={onChange}
-        className="w-full border px-3 py-2 rounded"
+        className="w-full border px-3 py-2 rounded text-black"
       />
       <textarea
         name="description"
         placeholder="Description"
         value={appartement.description}
         onChange={onChange}
-        className="w-full border px-3 py-2 rounded"
+        className="w-full border px-3 py-2 rounded text-black"
       />
+
+      <select
+        name="batimentId"
+        value={appartement.batiment?.id || ""}
+        onChange={onChange}
+        className="w-full border px-3 py-2 rounded text-black"
+      >
+        <option value="">Sélectionnez un bâtiment</option>
+        {batiments.map((b) => (
+          <option key={b.id} value={b.id}>
+            {b.nom} – {b.ville}
+          </option>
+        ))}
+      </select>
+
       {onSubmit && (
         <button
           type="submit"

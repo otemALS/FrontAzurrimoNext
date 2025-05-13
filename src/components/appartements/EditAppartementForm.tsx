@@ -1,25 +1,38 @@
 "use client";
-
 import Appartement from "@/models/Appartement";
-import { useState } from "react";
+import Batiment from "@/models/Batiment";
 import AppartementForm from "./AppartementForm";
+import { useEffect, useState } from "react";
 
-export default function EditAppartementForm({
-  appartement,
-  onCancel,
-  onUpdate,
-}: {
+type Props = {
   appartement: Appartement;
   onCancel: () => void;
-  onUpdate: (appartement: Appartement) => void;
-}) {
-  const [form, setForm] = useState<Appartement>(appartement);
+  onUpdate: (updated: Appartement) => void;
+};
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+export default function EditAppartementForm({ appartement, onCancel, onUpdate }: Props) {
+  const [form, setForm] = useState<Appartement>(appartement);
+  const [batiments, setBatiments] = useState<Batiment[]>([]);
+
+  useEffect(() => {
+    const fetchBatiments = async () => {
+      const res = await fetch("http://localhost:9008/api/batiments");
+      const data = await res.json();
+      setBatiments(data);
+    };
+
+    fetchBatiments();
+  }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({
       ...prev,
-      [name]: ["numero", "surface", "nb_pieces"].includes(name) ? Number(value) : value,
+      [name]: name === "numero" || name === "surface" || name === "nb_pieces"
+        ? Number(value)
+        : name === "batiment"
+        ? { id: Number(value) }
+        : value,
     }));
   };
 
@@ -43,12 +56,17 @@ export default function EditAppartementForm({
   };
 
   return (
-    <div className="bg-white rounded shadow p-4">
-      <AppartementForm appartement={form} onChange={handleChange} onSubmit={handleSubmit} />
+    <div className="bg-white rounded shadow p-4 mb-4">
+      <h3 className="text-lg font-semibold mb-2">Modifier l&apos;appartement</h3>
+      <AppartementForm
+        appartement={form}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+        batiments={batiments}
+      />
       <button
-        type="button"
+        className="mt-2 ml-2 text-gray-500 hover:underline"
         onClick={onCancel}
-        className="mt-2 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
       >
         Annuler
       </button>

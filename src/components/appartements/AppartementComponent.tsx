@@ -54,6 +54,10 @@ export default function AppartementComponent({ appartements }: Props) {
                 </p>
                 <p className="text-sm text-gray-500">{appartement.description}</p>
                 <p className="text-xs text-gray-400">Surface : {appartement.surface} m²</p>
+
+                <p className="text-sm text-gray-600 italic">
+      Bâtiment : {appartement.batiment?.nom} ({appartement.batiment?.ville})
+    </p>
                 <div className="mt-2 flex gap-2">
                   <button
                     onClick={() => setEditingId(appartement.id)}

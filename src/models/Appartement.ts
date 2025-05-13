@@ -4,4 +4,10 @@ export default interface Appartement {
   surface: number;
   nb_pieces: number;
   description: string;
+  batiment: {
+    id: number;
+    nom?: string;       // ← facultatif si parfois absent
+    adresse?: string;
+    ville?: string;
+  };
 }
