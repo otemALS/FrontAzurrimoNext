@@ -1,9 +1,11 @@
+import Locataire from "./Locataire";
+
 export default interface Contrat {
-    map(arg0: (contrat: Contrat) => import("react").JSX.Element): import("react").ReactNode;
-    id: number;
-    dateEntree: Date;
-    dateSortie: Date;
-    montantLoyer: number;
-    montantCharges: number;
-    statut: string;
+  id?: number; // ← ici optionnel
+  dateEntree: string;
+  dateSortie: string;
+  montantLoyer: number;
+  montantCharges: number;
+  statut: string;
+  locataire: Locataire;
 }

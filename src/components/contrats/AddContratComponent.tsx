@@ -1,47 +1,78 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import Contrat from "@/models/Contrat";
-import ContratComponent from "./ContratComponent";
+import Locataire from "@/models/Locataire";
 import ContratForm from "./ContratForm";
 
 export default function AddContratComponent() {
-    const [contrats, setContrats] = useState<Contrat[]>([]);
+  const [contrat, setContrat] = useState<Contrat>({
+    dateEntree: "",
+    dateSortie: "",
+    montantLoyer: 0,
+    montantCharges: 0,
+    statut: "",
+    locataire: {
+      id: 0,
+      nom: "",
+      prenom: "",
+      dateN: "",
+      lieuN: ""
+    }
+  });
 
-    const fetchContrats = async () => {
-        console.log("Rechargement de la liste...");
-        const res = await fetch("http://localhost:9008/api/contrats");
-        const data = await res.json();
-        console.log("Liste récupérée :", data);
-        setContrats(data);
-      };
-    
-    useEffect(() => {
-        fetchContrats();
-    }, []);
+  const [locataires, setLocataires] = useState<Locataire[]>([]);
 
-    const handleContratAjoute = () => {
-        fetchContrats(); // ⬅️ recharge toute la liste
-    };
+  useEffect(() => {
+    fetch("http://localhost:9008/api/locataires")
+      .then((res) => res.json())
+      .then((data) => setLocataires(data))
+      .catch((err) => console.error("Erreur chargement locataires :", err));
+  }, []);
 
-    return (
-    <div className="min-h-screen bg-[#F9FAFB] text-gray-800 px-4 py-8">
-    <div className="max-w-2xl mx-auto space-y-8">
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
 
-        <h1 className="text-3xl font-semibold text-center text-gray-900">Gestion des contrats</h1>
+    if (name === "montantLoyer" || name === "montantCharges") {
+      setContrat({ ...contrat, [name]: Number(value) });
+    } else if (name === "locataireId") {
+      const selectedLocataire = locataires.find((l) => l.id === Number(value));
+      if (selectedLocataire) {
+        setContrat({ ...contrat, locataire: selectedLocataire });
+      }
+    } else {
+      setContrat({ ...contrat, [name]: value });
+    }
+  };
 
-        <div className="bg-white p-6 rounded-xl shadow-sm ring-1 ring-gray-200">
-        <ContratForm onContratAdded={handleContratAjoute} />
-        </div>
+  const handleSubmit = async () => {
+    try {
+      const res = await fetch("http://localhost:9008/api/contrats", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...contrat,
+          locataire: { id: contrat.locataire.id } // ⚠️ on n'envoie que l'ID
+        }),
+      });
 
-        <div className="space-y-4">
-        {contrats.length === 0 ? (
-            <p className="text-center text-gray-500">Aucun contrat enregistré.</p>
-        ) : (
-            <ContratComponent contrats={contrats} />
-        )}
-        </div>
+      if (!res.ok) throw new Error("Erreur lors de l'ajout du contrat");
 
+      window.location.reload();
+    } catch (err) {
+      console.error("Erreur création contrat :", err);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded shadow p-6 max-w-xl mx-auto mb-8">
+      <h3 className="text-lg font-bold text-center mb-4">Ajouter un contrat</h3>
+      <ContratForm
+        initialData={contrat}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+        locataires={locataires}
+      />
     </div>
-    </div>
-    );
+  );
 }

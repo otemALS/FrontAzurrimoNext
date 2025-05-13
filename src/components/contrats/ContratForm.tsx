@@ -1,116 +1,85 @@
-"use client"
+"use client";
 
-import { JSX, useState } from "react";
+import React from "react";
+import Contrat from "@/models/Contrat";
+import Locataire from "@/models/Locataire";
 
-type ContratFormProps = {
-    onContratAdded: () => void;
+type Props = {
+  initialData: Contrat;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  onSubmit: () => void;
+  locataires: Locataire[];
 };
 
-export default function ContratForm({ onContratAdded }: ContratFormProps): JSX.Element {
-    const [dateEntree, setDateEntree] = useState("");
-    const [dateSortie, setDateSortie] = useState("");
-    const [montantLoyer, setMontantLoyer] = useState<number>(0);
-    const [montantCharges, setMontantCharges] = useState<number>(0);
-    const [statut, setStatut] = useState("");
-
-    const handleSubmit = async (e: React.FormEvent) => {
+export default function ContratForm({ initialData, onChange, onSubmit, locataires }: Props) {
+  return (
+    <form
+      onSubmit={(e) => {
         e.preventDefault();
-
-        const data = {
-            dateEntree,
-            dateSortie,
-            montantLoyer,
-            montantCharges,
-            statut,
-            contrat: { id: 1 }
-        };
-
-        try {
-            const response = await fetch("http://localhost:9008/api/contrats", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
-            });
-
-            if (!response.ok) {
-                throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-            }
-
-            const newContrat = await response.json();
-            console.log("Nouveau contrat ajouté :", newContrat);
-
-            onContratAdded();
-
-            setDateEntree("");
-            setDateSortie("");
-            setMontantLoyer(0);
-            setMontantCharges(0);
-            setStatut("");
-            
-        } catch (error) {
-            console.error("Erreur lors de l'envoi :", error);
-        }
-    };
-
-    return (
-<form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-    <label className="block text-sm font-medium text-gray-700 mb-1">Date d&apos;entrée</label>
-    <input
-      type="date"
-      value={dateEntree}
-      onChange={(e) => setDateEntree(e.target.value)}
-      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-    />
-
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1">Date de sortie</label>
-    <input
-      type="date"
-      value={dateSortie}
-      onChange={(e) => setDateSortie(e.target.value)}
-      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-    />
-  </div>
-
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1">Montant loyer</label>
-    <input
-      type="number"
-      value={montantLoyer}
-      onChange={(e) => setMontantLoyer(parseFloat(e.target.value))}
-      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm appearance-none"
-    />
-  </div>
-
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1">Montant charges</label>
-    <input
-      type="number"
-      value={montantCharges}
-      onChange={(e) => setMontantCharges(parseFloat(e.target.value))}
-      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm appearance-none"
-    />
-  </div>
-
-  <div className="sm:col-span-2">
-    <label className="block text-sm font-medium text-gray-700 mb-1">Statut</label>
-    <input
-      type="text"
-      value={statut}
-      onChange={(e) => setStatut(e.target.value)}
-      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-    />
-  </div>
-
-  <div className="sm:col-span-2 flex justify-end">
-    <button
-      type="submit"
-      className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-600 transition" 
-      
+        onSubmit();
+      }}
+      className="space-y-3"
     >
-      Ajouter
-    </button>
-  </div>
-</form>
-    );
+      <input
+        name="dateEntree"
+        type="date"
+        value={initialData.dateEntree}
+        onChange={onChange}
+        placeholder="Date d'entrée"
+        className="w-full px-4 py-2 border border-gray-300 rounded text-black"
+      />
+      <input
+        name="dateSortie"
+        type="date"
+        value={initialData.dateSortie}
+        onChange={onChange}
+        placeholder="Date de sortie"
+        className="w-full px-4 py-2 border border-gray-300 rounded text-black"
+      />
+      <input
+        name="montantLoyer"
+        type="number"
+        value={initialData.montantLoyer}
+        onChange={onChange}
+        placeholder="Montant du loyer"
+        className="w-full px-4 py-2 border border-gray-300 rounded text-black"
+      />
+      <input
+        name="montantCharges"
+        type="number"
+        value={initialData.montantCharges}
+        onChange={onChange}
+        placeholder="Montant des charges"
+        className="w-full px-4 py-2 border border-gray-300 rounded text-black"
+      />
+      <input
+        name="statut"
+        type="text"
+        value={initialData.statut}
+        onChange={onChange}
+        placeholder="Statut"
+        className="w-full px-4 py-2 border border-gray-300 rounded text-black"
+      />
+      <select
+        name="locataireId"
+        onChange={onChange}
+        className="w-full px-4 py-2 border border-gray-300 rounded text-black"
+        value={initialData.locataire?.id || ""}
+      >
+        <option value="">Sélectionnez un locataire</option>
+        {locataires.map((loc) => (
+          <option key={loc.id} value={loc.id}>
+            {loc.nom} {loc.prenom} – {loc.lieuN}
+          </option>
+        ))}
+      </select>
+
+      <button
+        type="submit"
+        className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
+      >
+        Valider
+      </button>
+    </form>
+  );
 }

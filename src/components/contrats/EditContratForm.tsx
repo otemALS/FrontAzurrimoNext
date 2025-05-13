@@ -1,109 +1,86 @@
 "use client";
-import { useState } from "react";
-import Contrat from "@/models/Contrat";
-import { motion } from "framer-motion";
 
-type EditContratFormProps = {
-  contrat: Contrat;
+import React, { useEffect, useState } from "react";
+import Contrat from "@/models/Contrat";
+import Locataire from "@/models/Locataire";
+import ContratForm from "./ContratForm";
+
+type Props = {
+  contratId: number;
   onCancel: () => void;
-  onUpdate: (updatedContrat: Contrat) => void;
+  onUpdate: (updated: Contrat) => void;
 };
 
-export default function EditContratForm({
-  contrat,
-  onCancel,
-  onUpdate,
-}: EditContratFormProps) {
-const [dateEntree, setDateEntree] = useState(
-    new Date(contrat.dateEntree).toISOString().split("T")[0]
-  );
-  const [dateSortie, setDateSortie] = useState(
-    new Date(contrat.dateSortie).toISOString().split("T")[0]
-  );
-  const [montantLoyer, setMontantLoyer] = useState(contrat.montantLoyer.toString());
-  const [montantCharges, setMontantCharges] = useState(contrat.montantLoyer.toString());
-  const [statut, setStatut] = useState(contrat.statut.toString());
+export default function EditContratForm({ contratId, onCancel, onUpdate }: Props) {
+  const [contrat, setContrat] = useState<Contrat | null>(null);
+  const [locataires, setLocataires] = useState<Locataire[]>([]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    fetch(`http://localhost:9008/api/contrats/${contratId}`)
+      .then((res) => res.json())
+      .then((data) => setContrat(data))
+      .catch((err) => console.error("Erreur lors du chargement du contrat :", err));
 
-    const updatedData = {
-      dateEntree,
-      dateSortie,
-      montantLoyer: parseFloat(montantLoyer),
-      montantCharges: parseFloat(montantCharges),
-      statut,
-    };
+    fetch("http://localhost:9008/api/locataires")
+      .then((res) => res.json())
+      .then((data) => setLocataires(data))
+      .catch((err) => console.error("Erreur chargement locataires :", err));
+  }, [contratId]);
 
-    try {
-      const response = await fetch(`http://localhost:9008/api/contrats/${contrat.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedData),
-      });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
 
-      if (!response.ok) {
-        throw new Error("Erreur lors de la mise à jour");
+    if (name === "montantLoyer" || name === "montantCharges") {
+      setContrat((prev) => prev ? { ...prev, [name]: parseFloat(value) } : prev);
+    } else if (name === "locataireId") {
+      const selected = locataires.find((l) => l.id === parseInt(value));
+      if (selected) {
+        setContrat((prev) => prev ? { ...prev, locataire: selected } : prev);
       }
-
-      const updated = await response.json();
-      onUpdate(updated); // on met à jour la liste
-    } catch (err) {
-      console.error(err);
+    } else {
+      setContrat((prev) => prev ? { ...prev, [name]: value } : prev);
     }
   };
 
-  return (
-    <motion.form
-        layout
-        onSubmit={handleSubmit}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full"
-        initial={{ opacity: 0, x: 30 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -30 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-        >
-        <div className="flex flex-col sm:flex-row gap-2 w-full">
-            <input className="border border-gray-300 rounded-md px-3 py-1 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-400"
-                type="date"
-                value={dateEntree}
-                onChange={(e) => setDateEntree(e.target.value)}
-                required
-            />
-            <input className="border border-gray-300 rounded-md px-3 py-1 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-400"
-                type="date"
-                value={dateSortie}
-                onChange={(e) => setDateSortie(e.target.value)}
-                required
-            />
-            <input className="border border-gray-300 rounded-md px-3 py-1 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-400"
-                type="number"
-                value={montantLoyer}
-                onChange={(e) => setMontantLoyer(e.target.value)}
-                required
-            />
-            <input className="border border-gray-300 rounded-md px-3 py-1 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-400"
-                type="number"
-                value={montantCharges}
-                onChange={(e) => setMontantCharges(e.target.value)}
-                required
-            />
-            <input className="border border-gray-300 rounded-md px-3 py-1 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-400"
-                type="string"
-                value={statut}
-                onChange={(e) => setStatut(e.target.value)}
-                required
-            />
+  const handleSubmit = async () => {
+    if (!contrat) return;
+    try {
+      const res = await fetch(`http://localhost:9008/api/contrats/${contratId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(contrat),
+      });
 
-      </div>
-      <div className="flex gap-2">
-        <button type="submit"
-        className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm">
-            Valider</button>
-        <button type="button" 
+      if (!res.ok) throw new Error("Erreur update");
+
+      const updated = await res.json();
+
+      // Correction ici : on remplace le locataire par le locataire complet
+      const fullLoc = locataires.find((l) => l.id === updated.locataire?.id);
+      onUpdate({ ...updated, locataire: fullLoc ?? updated.locataire });
+
+    } catch (err) {
+      console.error("Erreur lors de la mise à jour :", err);
+    }
+  };
+
+  if (!contrat) return <p>Chargement...</p>;
+
+  return (
+    <div>
+      <h3 className="text-lg font-semibold mb-2">Modifier le contrat</h3>
+      <ContratForm
+        initialData={contrat}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+        locataires={locataires}
+      />
+      <button
         onClick={onCancel}
-        className="text-gray-500 hover:text-gray-700 px-3 py-1 text-sm">Annuler</button>
-      </div>
-    </motion.form>
+        className="mt-2 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+      >
+        Annuler
+      </button>
+    </div>
   );
 }
