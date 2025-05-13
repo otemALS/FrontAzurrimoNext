@@ -1,8 +1,7 @@
 export default interface Appartement {
-    id: number;
-    numero: number;
-    surface: number;
-    nb_pieces: number;
-    description: string;
-  }
-  
+  id: number;
+  numero: number;
+  surface: number;
+  nb_pieces: number;
+  description: string;
+}

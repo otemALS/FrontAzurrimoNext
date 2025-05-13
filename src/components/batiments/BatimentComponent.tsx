@@ -1,32 +1,46 @@
-"use client"
-import API_URL from "@/constants/ApiUrl";
-import Batiment from "@/models/Batiment";
-import HttpService from "@/services/HttpServices";
-import Link from "next/link";
+"use client";
+
 import { useState } from "react";
+import Batiment from "@/models/Batiment";
+import EditBatimentForm from "./EditBatimentForm";
 
-export default function BatimentComponent({...props}:{batiments:Batiment[]}){
-const [batiments, setBatiments] = useState<Batiment[]>(props.batiments);
-    return (
-        <>
-      <h2>Bâtiments</h2>
-        <Link href ={"/"}>Retour à l&apos;accueil</Link>
+type Props = {
+  batiments: Batiment[];
+};
 
-        <ul>
-            {batiments.map((batiment:Batiment)=><li key={batiment.id}>
-                {batiment.adresse} - {batiment.ville} <span onClick={
-                    ()=>{
-                        HttpService.delete(API_URL.batiments+batiment.id).then((response)=>{
-                        if(response){
-                            const newBatiments=batiments.filter((b:Batiment)=>b.id!==batiment.id);
-                            setBatiments(newBatiments);
-                    }
-                        });
-                    }
-                }>X</span>
-            </li>)
-            }
-        </ul>
-      </>
-    )
+export default function BatimentComponent({ batiments: initial }: Props) {
+  const [batiments, setBatiments] = useState<Batiment[]>(initial);
+  const [editId, setEditId] = useState<number | null>(null);
+
+  const handleDelete = async (id: number) => {
+    await fetch(`http://localhost:9008/api/batiments/${id}`, {
+      method: "DELETE"
+    });
+    setBatiments(prev => prev.filter(b => b.id !== id));
+  };
+
+  const handleUpdate = (updated: Batiment) => {
+    setBatiments(prev => prev.map(b => (b.id === updated.id ? updated : b)));
+    setEditId(null);
+  };
+
+  return (
+    <div className="space-y-4 mt-6">
+      {batiments.map(b => (
+        <div key={b.id} className="bg-gray-50 rounded p-4 shadow">
+          {editId === b.id ? (
+            <EditBatimentForm batimentId={b.id} onCancel={() => setEditId(null)} onUpdate={handleUpdate} />
+          ) : (
+            <>
+              <p className="text-black-800 font-medium mb-2">{b.nom} - {b.adresse}, {b.ville}</p>
+              <div className="space-x-2">
+                <button onClick={() => setEditId(b.id)} className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Modifier</button>
+                <button onClick={() => handleDelete(b.id)} className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Supprimer</button>
+              </div>
+            </>
+          )}
+        </div>
+      ))}
+    </div>
+  );
 }

@@ -17,11 +17,12 @@ export default function AddAppartementComponent() {
     const { name, value } = e.target;
     setAppartement((prev) => ({
       ...prev,
-      [name]: name === "numero" || name === "surface" || name === "nb_pieces" ? Number(value) : value,
+      [name]: ["numero", "surface", "nb_pieces"].includes(name) ? Number(value) : value,
     }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     await fetch("http://localhost:9008/api/appartements", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -31,10 +32,9 @@ export default function AddAppartementComponent() {
   };
 
   return (
-    <AppartementForm
-      appartement={appartement}
-      onChange={handleChange}
-      onSubmit={handleSubmit}
-    />
+    <div>
+      <h3>Ajouter un appartement</h3>
+      <AppartementForm appartement={appartement} onChange={handleChange} onSubmit={handleSubmit} />
+    </div>
   );
 }

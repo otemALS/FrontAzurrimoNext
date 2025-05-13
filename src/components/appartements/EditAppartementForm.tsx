@@ -1,42 +1,57 @@
 "use client";
+
 import Appartement from "@/models/Appartement";
+import { useState } from "react";
 import AppartementForm from "./AppartementForm";
-import { useEffect, useState } from "react";
 
-export default function EditAppartementForm({ appartementId }: { appartementId: number }) {
-  const [appartement, setAppartement] = useState<Appartement | null>(null);
-
-  useEffect(() => {
-    fetch(`http://localhost:9008/api/appartements/${appartementId}`)
-      .then((res) => res.json())
-      .then((data) => setAppartement(data));
-  }, [appartementId]);
+export default function EditAppartementForm({
+  appartement,
+  onCancel,
+  onUpdate,
+}: {
+  appartement: Appartement;
+  onCancel: () => void;
+  onUpdate: (appartement: Appartement) => void;
+}) {
+  const [form, setForm] = useState<Appartement>(appartement);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    if (!appartement) return;
-    setAppartement((prev) => ({
-      ...prev!,
-      [name]: name === "numero" || name === "surface" || name === "nb_pieces" ? Number(value) : value,
+    setForm((prev) => ({
+      ...prev,
+      [name]: ["numero", "surface", "nb_pieces"].includes(name) ? Number(value) : value,
     }));
   };
 
-  const handleSubmit = async () => {
-    await fetch(`http://localhost:9008/api/appartements/${appartementId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(appartement),
-    });
-    window.location.reload();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const res = await fetch(`http://localhost:9008/api/appartements/${form.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) throw new Error("Erreur update");
+
+      const updated = await res.json();
+      onUpdate(updated);
+    } catch (err) {
+      console.error("Erreur lors de la mise à jour :", err);
+    }
   };
 
-  if (!appartement) return <p>Chargement...</p>;
-
   return (
-    <div>
-      <h3>Modifier l'appartement</h3>
-      <AppartementForm appartement={appartement} onChange={handleChange} />
-      <button onClick={handleSubmit}>Mettre à jour</button>
+    <div className="bg-white rounded shadow p-4">
+      <AppartementForm appartement={form} onChange={handleChange} onSubmit={handleSubmit} />
+      <button
+        type="button"
+        onClick={onCancel}
+        className="mt-2 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+      >
+        Annuler
+      </button>
     </div>
   );
 }
