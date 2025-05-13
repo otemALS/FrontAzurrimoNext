@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Contrat from "@/models/Contrat";
 import Locataire from "@/models/Locataire";
+import Appartement from "@/models/Appartement";
 import ContratForm from "./ContratForm";
 
 export default function AddContratComponent() {
@@ -18,16 +19,35 @@ export default function AddContratComponent() {
       prenom: "",
       dateN: "",
       lieuN: ""
+    },
+    appartement: {
+      id: 0,
+      numero: 0,
+      surface: 0,
+      nb_pieces: 0,
+      description: "",
+      batiment: {
+        id: 0,
+        nom: "",
+        adresse: "",
+        ville: ""
+      }
     }
   });
 
   const [locataires, setLocataires] = useState<Locataire[]>([]);
+  const [appartements, setAppartements] = useState<Appartement[]>([]);
 
   useEffect(() => {
     fetch("http://localhost:9008/api/locataires")
       .then((res) => res.json())
-      .then((data) => setLocataires(data))
+      .then(setLocataires)
       .catch((err) => console.error("Erreur chargement locataires :", err));
+
+    fetch("http://localhost:9008/api/appartements")
+      .then((res) => res.json())
+      .then(setAppartements)
+      .catch((err) => console.error("Erreur chargement appartements :", err));
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -36,9 +56,14 @@ export default function AddContratComponent() {
     if (name === "montantLoyer" || name === "montantCharges") {
       setContrat({ ...contrat, [name]: Number(value) });
     } else if (name === "locataireId") {
-      const selectedLocataire = locataires.find((l) => l.id === Number(value));
-      if (selectedLocataire) {
-        setContrat({ ...contrat, locataire: selectedLocataire });
+      const selected = locataires.find((l) => l.id === Number(value));
+      if (selected) {
+        setContrat({ ...contrat, locataire: selected });
+      }
+    } else if (name === "appartementId") {
+      const selected = appartements.find((a) => a.id === Number(value));
+      if (selected) {
+        setContrat({ ...contrat, appartement: selected });
       }
     } else {
       setContrat({ ...contrat, [name]: value });
@@ -50,10 +75,7 @@ export default function AddContratComponent() {
       const res = await fetch("http://localhost:9008/api/contrats", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...contrat,
-          locataire: { id: contrat.locataire.id } // ⚠️ on n'envoie que l'ID
-        }),
+        body: JSON.stringify(contrat),
       });
 
       if (!res.ok) throw new Error("Erreur lors de l'ajout du contrat");
@@ -72,6 +94,7 @@ export default function AddContratComponent() {
         onChange={handleChange}
         onSubmit={handleSubmit}
         locataires={locataires}
+        appartements={appartements}
       />
     </div>
   );

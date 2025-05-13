@@ -3,15 +3,23 @@
 import React from "react";
 import Contrat from "@/models/Contrat";
 import Locataire from "@/models/Locataire";
+import Appartement from "@/models/Appartement";
 
 type Props = {
   initialData: Contrat;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   onSubmit: () => void;
   locataires: Locataire[];
+  appartements: Appartement[];
 };
 
-export default function ContratForm({ initialData, onChange, onSubmit, locataires }: Props) {
+export default function ContratForm({
+  initialData,
+  onChange,
+  onSubmit,
+  locataires,
+  appartements
+}: Props) {
   return (
     <form
       onSubmit={(e) => {
@@ -28,6 +36,7 @@ export default function ContratForm({ initialData, onChange, onSubmit, locataire
         placeholder="Date d'entrée"
         className="w-full px-4 py-2 border border-gray-300 rounded text-black"
       />
+
       <input
         name="dateSortie"
         type="date"
@@ -36,6 +45,7 @@ export default function ContratForm({ initialData, onChange, onSubmit, locataire
         placeholder="Date de sortie"
         className="w-full px-4 py-2 border border-gray-300 rounded text-black"
       />
+
       <input
         name="montantLoyer"
         type="number"
@@ -44,6 +54,7 @@ export default function ContratForm({ initialData, onChange, onSubmit, locataire
         placeholder="Montant du loyer"
         className="w-full px-4 py-2 border border-gray-300 rounded text-black"
       />
+
       <input
         name="montantCharges"
         type="number"
@@ -52,6 +63,7 @@ export default function ContratForm({ initialData, onChange, onSubmit, locataire
         placeholder="Montant des charges"
         className="w-full px-4 py-2 border border-gray-300 rounded text-black"
       />
+
       <input
         name="statut"
         type="text"
@@ -60,16 +72,31 @@ export default function ContratForm({ initialData, onChange, onSubmit, locataire
         placeholder="Statut"
         className="w-full px-4 py-2 border border-gray-300 rounded text-black"
       />
+
       <select
         name="locataireId"
         onChange={onChange}
-        className="w-full px-4 py-2 border border-gray-300 rounded text-black"
         value={initialData.locataire?.id || ""}
+        className="w-full px-4 py-2 border border-gray-300 rounded text-black"
       >
         <option value="">Sélectionnez un locataire</option>
         {locataires.map((loc) => (
           <option key={loc.id} value={loc.id}>
             {loc.nom} {loc.prenom} – {loc.lieuN}
+          </option>
+        ))}
+      </select>
+
+      <select
+        name="appartementId"
+        onChange={onChange}
+        value={initialData.appartement?.id || ""}
+        className="w-full px-4 py-2 border border-gray-300 rounded text-black"
+      >
+        <option value="">Sélectionnez un appartement</option>
+        {appartements.map((app) => (
+          <option key={app.id} value={app.id}>
+            Appartement n°{app.numero} ({app.surface} m²)
           </option>
         ))}
       </select>

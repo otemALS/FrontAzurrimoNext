@@ -1,22 +1,14 @@
-import API_URL from "@/constants/ApiUrl";
-import HttpService from "@/services/HttpServices";
-import AddContratComponent from "@/components/contrats/AddContratComponent";
 import ContratComponent from "@/components/contrats/ContratComponent";
+import AddContratComponent from "@/components/contrats/AddContratComponent";
 
 export default async function ContratPage() {
-  const contrats = await HttpService.get(API_URL.contrats);
+  const res = await fetch("http://localhost:9008/api/contrats", { cache: "no-store" });
+  const contrats = await res.json();
 
   return (
-    <div className="min-h-screen bg-gray-100 px-4 py-10">
-      <div className="max-w-3xl mx-auto bg-white shadow-md rounded p-6">
-        <h1 className="text-2xl font-bold mb-4 text-center">Gestion des contrats</h1>
-
-        <AddContratComponent />
-
-        <hr className="my-6" />
-
-        <ContratComponent contrats={contrats} />
-      </div>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <AddContratComponent />
+      <ContratComponent contrats={contrats} />
     </div>
   );
 }
