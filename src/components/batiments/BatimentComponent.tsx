@@ -32,7 +32,7 @@ export default function BatimentComponent({ batiments: initial }: Props) {
             <EditBatimentForm batimentId={b.id} onCancel={() => setEditId(null)} onUpdate={handleUpdate} />
           ) : (
             <>
-              <p className="text-black-800 font-medium mb-2">{b.nom} - {b.adresse}, {b.ville}</p>
+              <p className="text-black font-medium mb-2">{b.nom} - {b.adresse}, {b.ville}</p>
               <div className="space-x-2">
                 <button onClick={() => setEditId(b.id)} className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Modifier</button>
                 <button onClick={() => handleDelete(b.id)} className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Supprimer</button>
