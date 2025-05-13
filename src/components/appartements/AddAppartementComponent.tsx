@@ -12,7 +12,8 @@ export default function AddAppartementComponent() {
     surface: 0,
     nb_pieces: 0,
     description: "",
-    batiment: { id: 0 }
+    batiment: { id: 0, nom: "", adresse: "", ville: "" },
+    contrats: [],
   });
 
   const [batiments, setBatiments] = useState<Batiment[]>([]);
@@ -23,18 +24,27 @@ export default function AddAppartementComponent() {
       .then((data) => setBatiments(data));
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value } = e.target;
 
     if (name === "batimentId") {
-      setAppartement((prev) => ({
-        ...prev,
-        batiment: { id: Number(value) }
-      }));
+      const selectedBatiment = batiments.find((b) => b.id === Number(value));
+      if (selectedBatiment) {
+        setAppartement((prev) => ({
+          ...prev,
+          batiment: selectedBatiment,
+        }));
+      }
     } else {
       setAppartement((prev) => ({
         ...prev,
-        [name]: ["numero", "surface", "nb_pieces"].includes(name) ? Number(value) : value
+        [name]: ["numero", "surface", "nb_pieces"].includes(name)
+          ? Number(value)
+          : value,
       }));
     }
   };
@@ -53,7 +63,7 @@ export default function AddAppartementComponent() {
 
   return (
     <div>
-      <h3>Ajouter un appartement</h3>
+      <h3 className="text-xl font-semibold mb-4">Ajouter un appartement</h3>
       <AppartementForm
         appartement={appartement}
         batiments={batiments}

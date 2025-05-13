@@ -18,7 +18,7 @@ export default function AppartementForm({ appartement, batiments, onChange, onSu
     >
       <input
         name="numero"
-        type="number"
+        type="text"
         placeholder="Numéro"
         value={appartement.numero}
         onChange={onChange}

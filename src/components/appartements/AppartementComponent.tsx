@@ -56,17 +56,33 @@ export default function AppartementComponent({ appartements }: Props) {
                 <p className="text-xs text-gray-400">Surface : {appartement.surface} m²</p>
 
                 <p className="text-sm text-gray-600 italic">
-      Bâtiment : {appartement.batiment?.nom} ({appartement.batiment?.ville})
-    </p>
+                  Bâtiment : {appartement.batiment?.nom} ({appartement.batiment?.ville})
+                </p>
+
+                {appartement.contrats && appartement.contrats.length > 0 && (
+                  <div className="mt-3 text-sm text-gray-700">
+                    <p className="font-semibold">Contrats :</p>
+                    <ul className="list-disc list-inside">
+                      {appartement.contrats.map((contrat) => (
+                        <li key={contrat.id}>
+                          #{contrat.id} – du {contrat.dateEntree} au {contrat.dateSortie} – {contrat.statut}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
                 <div className="mt-2 flex gap-2">
                   <button
-                    onClick={() => setEditingId(appartement.id)}
+                    onClick={() => appartement.id !== undefined && setEditingId(appartement.id)}
+
                     className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
                   >
                     Modifier
                   </button>
                   <button
-                    onClick={() => handleDelete(appartement.id)}
+                    onClick={() => appartement.id !== undefined && handleDelete(appartement.id)}
+
                     className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
                   >
                     Supprimer

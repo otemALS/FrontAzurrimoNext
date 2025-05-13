@@ -1,13 +1,16 @@
+import Contrat from "./Contrat";
+
 export default interface Appartement {
-  id: number;
-  numero: number;
+  id?: number;
+  numero: string;
   surface: number;
   nb_pieces: number;
   description: string;
   batiment: {
     id: number;
-    nom?: string;       // ← facultatif si parfois absent
-    adresse?: string;
-    ville?: string;
+    nom: string;
+    adresse: string;
+    ville: string;
   };
+  contrats?: Contrat[]; // 👈 Ajoute cette ligne
 }
