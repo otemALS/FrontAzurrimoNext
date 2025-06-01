@@ -7,10 +7,10 @@ import Batiment from "@/models/Batiment";
 
 export default function AddAppartementComponent() {
   const [appartement, setAppartement] = useState<Appartement>({
-    id: 0,
-    numero: 0,
-    surface: 0,
-    nb_pieces: 0,
+    numero: undefined,
+    surface: undefined,
+    nbPieces: undefined,
+
     description: "",
     batiment: { id: 0, nom: "", adresse: "", ville: "" },
     contrats: [],
@@ -43,7 +43,7 @@ export default function AddAppartementComponent() {
       setAppartement((prev) => ({
         ...prev,
         [name]: ["numero", "surface", "nb_pieces"].includes(name)
-          ? Number(value)
+          ? value === "" ? undefined : Number(value)
           : value,
       }));
     }

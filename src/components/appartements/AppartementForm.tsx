@@ -3,6 +3,8 @@
 import Appartement from "@/models/Appartement";
 import Batiment from "@/models/Batiment";
 
+import React from "react";
+
 type Props = {
   appartement: Appartement;
   batiments: Batiment[];
@@ -18,9 +20,9 @@ export default function AppartementForm({ appartement, batiments, onChange, onSu
     >
       <input
         name="numero"
-        type="text"
+        type="number"
         placeholder="Numéro"
-        value={appartement.numero}
+        value={appartement.numero ?? ""}
         onChange={onChange}
         className="w-full border px-3 py-2 rounded text-black"
       />
@@ -28,15 +30,15 @@ export default function AppartementForm({ appartement, batiments, onChange, onSu
         name="surface"
         type="number"
         placeholder="Surface (m²)"
-        value={appartement.surface}
+        value={appartement.surface ?? ""}
         onChange={onChange}
         className="w-full border px-3 py-2 rounded text-black"
       />
       <input
-        name="nb_pieces"
+        name="nbPieces"
         type="number"
         placeholder="Nombre de pièces"
-        value={appartement.nb_pieces}
+        value={appartement.nbPieces ?? ""}
         onChange={onChange}
         className="w-full border px-3 py-2 rounded text-black"
       />

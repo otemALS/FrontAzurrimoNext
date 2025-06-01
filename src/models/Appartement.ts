@@ -2,9 +2,9 @@ import Contrat from "./Contrat";
 
 export default interface Appartement {
   id?: number;
-  numero: string;
-  surface: number;
-  nb_pieces: number;
+  numero?: number;
+  surface?: number;
+  nb_pieces?: number;
   description: string;
   batiment: {
     id: number;

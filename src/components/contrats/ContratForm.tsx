@@ -49,18 +49,18 @@ export default function ContratForm({
       <input
         name="montantLoyer"
         type="number"
-        value={initialData.montantLoyer}
+        value={initialData.montantLoyer ?? ""}
         onChange={onChange}
-        placeholder="Montant du loyer"
+        placeholder="Loyer"
         className="w-full px-4 py-2 border border-gray-300 rounded text-black"
       />
 
       <input
         name="montantCharges"
         type="number"
-        value={initialData.montantCharges}
+        value={initialData.montantCharges ?? ""}
         onChange={onChange}
-        placeholder="Montant des charges"
+        placeholder="Charges"
         className="w-full px-4 py-2 border border-gray-300 rounded text-black"
       />
 
@@ -96,7 +96,7 @@ export default function ContratForm({
         <option value="">Sélectionnez un appartement</option>
         {appartements.map((app) => (
           <option key={app.id} value={app.id}>
-            Appartement n°{app.numero} ({app.surface} m²)
+            Appartement n°{app.numero} – {app.batiment.nom}, {app.batiment.ville}
           </option>
         ))}
       </select>

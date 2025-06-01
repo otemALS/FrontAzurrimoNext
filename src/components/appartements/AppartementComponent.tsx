@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Appartement from "@/models/Appartement";
 import AddAppartementComponent from "./AddAppartementComponent";
 import EditAppartementForm from "./EditAppartementForm";
@@ -50,7 +50,7 @@ export default function AppartementComponent({ appartements }: Props) {
             ) : (
               <>
                 <p className="font-semibold">
-                  Appartement n°{appartement.numero} – {appartement.nb_pieces} pièces
+                  Appartement n°{appartement.numero} – {appartement.nbPieces ?? "?"} pièces
                 </p>
                 <p className="text-sm text-gray-500">{appartement.description}</p>
                 <p className="text-xs text-gray-400">Surface : {appartement.surface} m²</p>
@@ -75,14 +75,12 @@ export default function AppartementComponent({ appartements }: Props) {
                 <div className="mt-2 flex gap-2">
                   <button
                     onClick={() => appartement.id !== undefined && setEditingId(appartement.id)}
-
                     className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
                   >
                     Modifier
                   </button>
                   <button
                     onClick={() => appartement.id !== undefined && handleDelete(appartement.id)}
-
                     className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
                   >
                     Supprimer

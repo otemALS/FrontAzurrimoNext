@@ -20,7 +20,7 @@ export default function EditContratForm({ contratId, onCancel, onUpdate }: Props
   useEffect(() => {
     fetch(`http://localhost:9008/api/contrats/${contratId}`)
       .then((res) => res.json())
-      .then((data) => setContrat(data))
+      .then(setContrat)
       .catch((err) => console.error("Erreur chargement contrat :", err));
 
     fetch("http://localhost:9008/api/locataires")
